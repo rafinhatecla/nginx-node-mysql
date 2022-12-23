@@ -1,6 +1,7 @@
 const http = require("http");
 const express = require("express");
 const mysql = require("mysql");
+const faker = require("@faker-js/faker").faker;
 
 const HOST = process.env.HOST || "0.0.0.0";
 const PORT = process.env.PORT || 3000;
@@ -16,8 +17,8 @@ const app = express();
 
 let db = undefined;
 
-app.get("/", (req, res) => {
-  const name = req.query.name;
+app.get("/", (_, res) => {
+  const name = faker.name.fullName();
   db.query("INSERT INTO people(name) value(?);", name);
 
   db.query("SELECT name FROM people;", (error, results, fields) => {
