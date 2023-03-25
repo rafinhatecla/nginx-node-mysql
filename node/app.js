@@ -19,7 +19,7 @@ let db = undefined;
 
 app.get("/", (_, res) => {
   const name = faker.name.fullName();
-  db.query("INSERT INTO people(name) value(?);", name);
+  db.query("INSERT INTO people(name) values(?);", name);
 
   db.query("SELECT name FROM people;", (error, results, fields) => {
     if (error) {
@@ -27,9 +27,21 @@ app.get("/", (_, res) => {
     }
     const names = results.map((r) => {
       const name = r.name;
-      return name;
+      return `<li>${name}</li>`;
     });
-    return res.status(200).json(names);
+
+    const content = `<h1>Full Cycle Rocks!</h1><ul>${names.join(" ")}</ul>`;
+
+    return res.status(200).send(content);
+  });
+});
+
+app.get("/healthz", (_, res) => {
+  db.query("SELECT 1+1;", (error, _results, _fields) => {
+    if (error) {
+      return res.status(500).json({ message: "Not ready" });
+    }
+    return res.status(200).json({ message: "Ready" });
   });
 });
 
@@ -42,18 +54,14 @@ function startServer() {
   });
 }
 
-function connectionRetry() {
-  db = mysql.createConnection(config);
+db = mysql.createConnection(config);
 
-  db.connect(function (err) {
-    if (err) {
-      setTimeout(connectionRetry, 2000);
-      return;
-    }
+db.connect(function (err) {
+  if (err) {
+    console.log(err);
+    return;
+  }
 
-    console.log("connected as mysql");
-    startServer();
-  });
-}
-
-connectionRetry();
+  console.log("connected as mysql");
+  startServer();
+});
