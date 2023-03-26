@@ -40,6 +40,7 @@ services:
       - node-net
     environment:
       PORT: 3000
+    entrypoint: wait-for mysql:3306 -t 40 -- node app.js
     healthcheck:
       test: wget -nv -t1 --spider "http://localhost:$$PORT/healthz" || exit 1
       interval: 5s
